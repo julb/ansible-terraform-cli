@@ -1,0 +1,59 @@
+---
+- name: terraform utility should be installed
+  become: yes
+  block:    
+    - name: download terraform distribution and validate checksum
+      ansible.builtin.get_url:
+        url: "{{ terraform_releases_url }}/{{ terraform_version }}/terraform_{{ terraform_version }}_{{ terraform_os }}_{{ terraform_arch }}.zip"
+        dest: /tmp/
+        checksum: "sha256:{{ terraform_executable_sha256_checksum }}"
+      changed_when: no
+
+    - name: create target folder for terraform unarchiving
+      ansible.builtin.file:
+        path: "/tmp/terraform-v{{ terraform_version }}-{{ terraform_os }}-{{ terraform_arch }}"
+        state: directory
+      changed_when: no
+
+    - name: unzip utility should be installed
+      ansible.builtin.yum:
+        name: unzip
+        state: present
+
+    - name: unarchive the terraform distribution and extract binary
+      ansible.builtin.unarchive:
+        remote_src: yes
+        src: "/tmp/terraform_{{ terraform_version }}_{{ terraform_os }}_{{ terraform_arch }}.zip"
+        dest: "/tmp/terraform-v{{ terraform_version }}-{{ terraform_os }}-{{ terraform_arch }}"
+      changed_when: no
+
+    - name: copy binary of terraform
+      ansible.builtin.copy:
+        remote_src: yes
+        src: /tmp/terraform-v{{ terraform_version }}-{{ terraform_os }}-{{ terraform_arch }}/terraform
+        dest: "{{ terraform_executable }}"
+        mode: 0755
+        owner: root
+        group: root
+  
+  always:
+    - name: remove terraform temporary files
+      ansible.builtin.file:
+        path: "{{ item }}"
+        state: absent
+      with_items:
+        - "/tmp/terraform-v{{ terraform_version }}-{{ terraform_os }}-{{ terraform_arch }}"
+        - "/tmp/terraform_{{ terraform_version }}_{{ terraform_os }}_{{ terraform_arch }}.zip"
+      changed_when: no
+
+- name: get terraform version
+  become: yes
+  ansible.builtin.shell: 
+    cmd: "{{ terraform_executable }} version"
+  register: terraform_installed_version
+  changed_when: no
+
+- name: print installed terraform version
+  ansible.builtin.debug:
+    var: terraform_installed_version.stdout
+    verbosity: 1

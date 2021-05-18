@@ -1,0 +1,6 @@
+---
+terraform_releases_url: https://releases.hashicorp.com/terraform
+terraform_version: 0.15.3
+terraform_os: linux
+terraform_arch: amd64
+terraform_executable_sha256_checksum: 5ce5834fd74e3368ad7bdaac847f973e66e61acae469ee86b88da4c6d9f933d4
