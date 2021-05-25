@@ -6,5 +6,5 @@
   gather_facts: false
   tasks:
     - name: check terraform installed
-      ansible.builtin.shell: "terraform version"
+      ansible.builtin.command: "terraform version"
       changed_when: no

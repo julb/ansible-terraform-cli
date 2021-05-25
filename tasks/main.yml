@@ -6,6 +6,9 @@
       ansible.builtin.get_url:
         url: "{{ terraform_releases_url }}/{{ terraform_version }}/terraform_{{ terraform_version }}_{{ terraform_os }}_{{ terraform_arch }}.zip"
         dest: /tmp/
+        mode: 0755
+        owner: root
+        group: root
         checksum: "sha256:{{ terraform_executable_sha256_checksum }}"
       changed_when: no
 
@@ -13,6 +16,9 @@
       ansible.builtin.file:
         path: "/tmp/terraform-v{{ terraform_version }}-{{ terraform_os }}-{{ terraform_arch }}"
         state: directory
+        mode: 0755
+        owner: root
+        group: root
       changed_when: no
 
     - name: unzip utility should be installed
@@ -48,7 +54,7 @@
 
 - name: get terraform version
   become: yes
-  ansible.builtin.shell: 
+  ansible.builtin.command: 
     cmd: "{{ terraform_executable }} version"
   register: terraform_installed_version
   changed_when: no
